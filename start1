@@ -1,0 +1,563 @@
+#include<windows.h>
+#include<stdio.h>
+#include<conio.h>
+#include <stdlib.h>
+#include<string.h>                  //contains strcmp(),strcpy(),strlen(),etc
+#include<ctype.h>                   //contains toupper(), tolower(),etc
+#include<dos.h>                     //contains _dos_getdate
+#include<time.h>
+//#include<bios.h>
+
+#define RETURNTIME 15
+
+char catagories[][15]={"TextBooks","Magazine","Novel","StoryBooks","Compassbox","Penbox","Bags"};
+void returnfunc(void);
+void mainmenu(void);
+void add(void);
+void deleteit(void);
+void edit(void);
+void search(void);
+void view(void);
+void closeapplication(void);
+int  getdata();
+int  checkid(int);
+int t(void);
+//void show_mouse(void);
+void issuerecord();
+void loaderanim();
+
+//list of global files that can be acceed form anywhere in program
+FILE *fp,*ft,*fs;
+
+
+COORD coord = {0, 0};
+//list of global variable
+int s;
+char find;
+
+
+void gotoxy (int x, int y)
+{
+coord.X = x; coord.Y = y; // X and Y coordinates
+SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), coord);
+}
+
+struct meroDate
+{
+int mm,dd,yy;
+};
+struct books
+{
+int id;
+char stname[20];
+char name[20];
+int quantity;
+float Price;
+int count;
+char *cat;
+struct meroDate issued;
+};
+struct books a;
+
+void mainmenu()
+{
+//loaderanim();
+system("cls");
+//    textbackground(13);
+int i;
+gotoxy(20,3);
+printf("\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2 MAIN MENU \xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2");
+//    show_mouse();
+gotoxy(20,5);
+printf("\xDB\xDB\xDB\xDB\xB2 1. Add ");
+gotoxy(20,7);
+printf("\xDB\xDB\xDB\xDB\xB2 2. Delete It");
+gotoxy(20,9);
+printf("\xDB\xDB\xDB\xDB\xB2 3. Search ");
+gotoxy(20,11);
+printf("\xDB\xDB\xDB\xDB\xB2 4. View ");
+gotoxy(20,15);
+printf("\xDB\xDB\xDB\xDB\xB2 5. Edit ");
+gotoxy(20,17);
+printf("\xDB\xDB\xDB\xDB\xB2 6. Close Application");
+gotoxy(20,19);
+printf("\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2");
+gotoxy(20,20);
+t();
+gotoxy(20,21);
+printf("Enter your choice:");
+switch(getch())
+{
+case '1':
+add();
+break;
+case '2':
+deleteit();
+break;
+case '3':
+search();
+break;
+case '4':
+view();
+break;
+case '5':
+edit();
+break;
+case '6':
+{
+system("cls");
+gotoxy(16,3);
+printf("\tStationery Management System");
+gotoxy(16,4);
+printf("\t by Harsh & Raj");
+gotoxy(16,8);
+printf("******************************************");
+gotoxy(16,10);
+printf("*******************************************");
+gotoxy(16,11);
+printf("*******************************************");
+gotoxy(16,13);
+printf("********************************************");
+gotoxy(10,17);
+printf("Exiting in 3 second...........>");
+//flushall();
+Sleep(3000);
+exit(0);
+}
+default:
+{
+gotoxy(10,23);
+printf("\aWrong Entry!!Please re-entered correct option");
+if(getch())
+mainmenu();
+}
+
+}
+}
+void add(void)    //funtion that add books
+{
+system("cls");
+int i;
+gotoxy(20,5);
+printf("\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2SELECT CATEGOIES\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2");
+gotoxy(20,7);
+printf("\xDB\xDB\xDB\xDB\xB2 1.TextBooks");
+gotoxy(20,9);
+printf("\xDB\xDB\xDB\xDB\xB2 2. Magazine");
+gotoxy(20,11);
+printf("\xDB\xDB\xDB\xDB\xB2 3. Novel ");
+gotoxy(20,13);
+printf("\xDB\xDB\xDB\xDB\xB2 4. StoryBooks OR Comics");
+gotoxy(20,15);
+printf("\xDB\xDB\xDB\xDB\xB2 5. Compassbox ");
+gotoxy(20,17);
+printf("\xDB\xDB\xDB\xDB\xB2 6. Penbox ");
+gotoxy(20,19);
+printf("\xDB\xDB\xDB\xDB\xB2 7. Bag ");
+gotoxy(20,20);
+printf("\xDB\xDB\xDB\xDB\xB2 8. Back to main menu");
+gotoxy(20,21);
+printf("\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2");
+gotoxy(20,22);
+printf("Enter your choice:");
+scanf("%d",&s);
+if(s==8)
+
+mainmenu() ;
+system("cls");
+fp=fopen("add.txt","ab+");
+if(getdata()==1)
+{
+a.cat=catagories[s-1];
+fseek(fp,0,SEEK_END);
+fwrite(&a,sizeof(a),1,fp);
+fclose(fp);
+gotoxy(21,14);
+printf("The record is sucessfully saved");
+gotoxy(21,15);
+printf("Save any more?(Y / N):");
+if(getch()=='n')
+mainmenu();
+else
+system("cls");
+add();
+}
+}
+void deleteit()    //function that delete items from file fp
+{
+system("cls");
+int d;
+char another='y';
+while(another=='y')  //infinite loop
+{
+system("cls");
+gotoxy(10,5);
+printf("Enter the  ID to  delete:");
+scanf("%d",&d);
+fp=fopen("add.txt","rb+");
+rewind(fp);
+while(fread(&a,sizeof(a),1,fp)==1)
+{
+if(a.id==d)
+{
+
+gotoxy(10,7);
+printf("The  record is available");
+gotoxy(10,8);
+printf(" name is %s",a.name);
+gotoxy(10,9);
+find='t';
+}
+}
+if(find!='t')
+{
+gotoxy(10,10);
+printf("No record is found modify the search");
+if(getch())
+mainmenu();
+}
+if(find=='t' )
+{
+gotoxy(10,9);
+printf("Do you want to delete it?(Y/N):");
+if(getch()=='y')
+{
+ft=fopen("test.txt","wb+");  //temporary file for delete
+rewind(fp);
+while(fread(&a,sizeof(a),1,fp)==1)
+{
+if(a.id!=d)
+{
+fseek(ft,0,SEEK_CUR);
+fwrite(&a,sizeof(a),1,ft); //write all in tempory file except that
+}                              //we want to delete
+}
+fclose(ft);
+fclose(fp);
+remove("add.txt");
+rename("test.txt","add.txt"); //copy all item from temporary file to fp except that
+fp=fopen("add.txt","rb+");    //we want to delete
+if(find=='t')
+{
+gotoxy(10,10);
+printf("The record is sucessfully deleted");
+gotoxy(10,11);
+printf("Delete another record?(Y/N)");
+}
+}
+else
+mainmenu();
+fflush(stdin);
+another=getch();
+}
+}
+gotoxy(10,15);
+mainmenu();
+}
+void search()
+{
+system("cls");
+int d;
+printf("*****************************Search Item*********************************");
+gotoxy(20,10);
+printf("\xDB\xDB\xDB\xB2 1. Search By ID");
+gotoxy(20,14);
+printf("\xDB\xDB\xDB\xB2 2. Search By Name");
+gotoxy( 15,20);
+printf("Enter Your Choice");
+fp=fopen("add.txt","rb+"); //open file for reading propose
+rewind(fp);   //move pointer at the begining of file
+switch(getch())
+{
+case '1':
+{
+system("cls");
+gotoxy(25,4);
+printf("****Search  By Id****");
+gotoxy(20,5);
+printf("Enter the id:");
+scanf("%d",&d);
+gotoxy(20,7);
+printf("Searching........");
+while(fread(&a,sizeof(a),1,fp)==1)
+{
+if(a.id==d)
+{
+Sleep(2);
+gotoxy(20,7);
+printf("The Item is available");
+gotoxy(20,8);
+printf("\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2");
+gotoxy(20,9);
+printf("\xB2 ID:%d",a.id);gotoxy(47,9);printf("\xB2");
+gotoxy(20,10);
+printf("\xB2 Name:%s",a.name);gotoxy(47,10);printf("\xB2");
+gotoxy(20,11);
+printf("\xB2 Qantity:%d ",a.quantity);gotoxy(47,12);printf("\xB2"); gotoxy(47,11);printf("\xB2");
+gotoxy(20,13);
+printf("\xB2 Price:Rs.%.2f",a.Price);gotoxy(47,13);printf("\xB2");
+gotoxy(20,14);
+printf("\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2");
+find='t';
+}
+
+}
+if(find!='t')  //checks whether conditiion enters inside loop or not
+{
+gotoxy(20,8);
+printf("\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2");
+gotoxy(20,9);printf("\xB2");  gotoxy(38,9);printf("\xB2");
+gotoxy(20,10);
+printf("\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2");
+gotoxy(22,9);printf("\aNo Record Found");
+}
+gotoxy(20,17);
+printf("Try another search?(Y/N)");
+if(getch()=='y')
+search();
+else
+mainmenu();
+break;
+}
+case '2':
+{
+char s[15];
+system("cls");
+gotoxy(25,4);
+printf("****Search By Name****");
+gotoxy(20,5);
+printf("Enter Item Name:");
+scanf("%s",s);
+int d=0;
+while(fread(&a,sizeof(a),1,fp)==1)
+{
+if(strcmp(a.name,(s))==0) //checks whether a.name is equal to s or not
+{
+gotoxy(20,7);
+printf("The Item is available");
+gotoxy(20,8);
+printf("\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2");
+gotoxy(20,9);
+printf("\xB2 ID:%d",a.id);gotoxy(47,9);printf("\xB2");
+gotoxy(20,10);
+printf("\xB2 Name:%s",a.name);gotoxy(47,10);printf("\xB2");
+gotoxy(20,11);
+printf("\xB2 Qantity:%d",a.quantity);gotoxy(47,12);printf("\xB2");
+gotoxy(20,13);
+printf("\xB2 Price:Rs.%.2f",a.Price);gotoxy(47,13);printf("\xB2");
+gotoxy(20,14);
+printf("\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2");
+d++;
+}
+
+}
+if(d==0)
+{
+gotoxy(20,8);
+printf("\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2");
+gotoxy(20,9);printf("\xB2");  gotoxy(38,9);printf("\xB2");
+gotoxy(20,10);
+printf("\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2");
+gotoxy(22,9);printf("\aNo Record Found");
+}
+gotoxy(20,17);
+printf("Try another search?(Y/N)");
+if(getch()=='y')
+search();
+else
+mainmenu();
+break;
+}
+default :
+getch();
+search();
+}
+fclose(fp);
+}
+void view(void)  //show the list of book persists in library
+{
+int i=0,j;
+system("cls");
+gotoxy(1,1);
+printf("********************************* List*****************************");
+gotoxy(2,2);
+printf(" CATEGORY     ID     NAME       QTY     PRICE      ");
+j=4;
+fp=fopen("add.txt","rb");
+while(fread(&a,sizeof(a),1,fp)==1)
+{
+gotoxy(3,j);
+printf("%s",a.cat);
+gotoxy(16,j);
+printf("%d",a.id);
+gotoxy(22,j);
+printf("%s",a.name);
+gotoxy(36,j);
+printf("%.2f",a.Price);
+gotoxy(67,j);
+printf("\n\n");
+j++;
+i=i+a.quantity;
+}
+gotoxy(3,25);
+printf("Total =%d",i);
+fclose(fp);
+gotoxy(35,25);
+returnfunc();
+}
+void edit(void)  //edit information about book
+{
+system("cls");
+int c=0;
+int d,e;
+gotoxy(20,4);
+printf("****Edit Section****");
+char another='y';
+while(another=='y')
+{
+system("cls");
+gotoxy(15,6);
+printf("Enter  Id to be edited:");
+scanf("%d",&d);
+fp=fopen("add.txt","rb+");
+while(fread(&a,sizeof(a),1,fp)==1)
+{
+if(checkid(d)==0)
+{
+gotoxy(15,7);
+printf("It is availble");
+gotoxy(15,8);
+printf("The  ID:%d",a.id);
+gotoxy(15,9);
+printf("Enter new name:");scanf("%s",a.name);
+gotoxy(15,10);
+printf("Enter new quantity:");scanf("%d",&a.quantity);
+gotoxy(15,12);
+printf("Enter new price:");scanf("%f",&a.Price);
+gotoxy(15,13);
+printf("The record is modified");
+fseek(fp,ftell(fp)-sizeof(a),0);
+fwrite(&a,sizeof(a),1,fp);
+fclose(fp);
+c=1;
+}
+if(c==0)
+{
+gotoxy(15,9);
+printf("No record found");
+}
+}
+gotoxy(15,16);
+printf("Modify another Record?(Y/N)");
+fflush(stdin);
+another=getch() ;
+}
+returnfunc();
+}
+void returnfunc(void)
+{
+{
+printf(" Press ENTER to return to main menu");
+}
+a:
+if(getch()==13) //allow only use of enter
+mainmenu();
+else
+goto a;
+}
+int getdata()
+{
+int t;
+gotoxy(20,3);printf("Enter the Information Below");
+gotoxy(20,4);printf("\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2");
+gotoxy(20,5);
+printf("\xB2");gotoxy(46,5);printf("\xB2");
+gotoxy(20,6);
+printf("\xB2");gotoxy(46,6);printf("\xB2");
+gotoxy(20,7);
+printf("\xB2");gotoxy(46,7);printf("\xB2");
+gotoxy(20,8);
+printf("\xB2");gotoxy(46,8);printf("\xB2");
+gotoxy(20,9);
+printf("\xB2");gotoxy(46,9);printf("\xB2");
+gotoxy(20,10);
+printf("\xB2");gotoxy(46,10);printf("\xB2");
+gotoxy(20,11);
+printf("\xB2");gotoxy(46,11);printf("\xB2");
+gotoxy(20,12);
+printf("\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2");
+gotoxy(21,5);
+printf("Category:");
+gotoxy(31,5);
+printf("%s",catagories[s-1]);
+gotoxy(21,6);
+printf(" ID:\t");
+gotoxy(30,6);
+scanf("%d",&t);
+if(checkid(t) == 0)
+{
+gotoxy(21,13);
+printf("\aThe  id already exists\a");
+getch();
+mainmenu();
+return 0;
+}
+a.id=t;
+gotoxy(21,7);
+printf(" Name:");gotoxy(33,7);
+scanf("%s",a.name);
+gotoxy(21,8);
+printf("Quantity:");gotoxy(31,9);
+scanf("%d",&a.quantity);
+gotoxy(21,10);
+printf("Price:");gotoxy(28,10);
+scanf("%f",&a.Price);
+gotoxy(21,11);
+
+return 1;
+}
+int checkid(int t)  //check whether the book is exist in library or not
+{
+rewind(fp);
+while(fread(&a,sizeof(a),1,fp)==1)
+if(a.id==t)
+return 0;  //returns 0 if book exits
+return 1; //return 1 if it not
+}
+int t(void) //for time
+{
+time_t t;
+time(&t);
+printf("Date and time:%s\n",ctime(&t));
+
+return 0 ;
+}
+/*void show_mouse(void) //show inactive mouse pointer in programme
+{
+union REGS in,out;
+       in.x.ax = 0x1;
+       int86(0x33,&in,&out);
+}*/
+
+void issuerecord()  //display issued book's information
+{
+system("cls");
+gotoxy(10,8);
+printf("The Item has taken by Mr. %s",a.stname);
+gotoxy(10,9);
+printf("Issued Date:%d-%d-%d",a.issued.dd,a.issued.mm,a.issued.yy);
+gotoxy(10,10);
+}
+/*void loaderanim()
+{
+int loader;
+system("cls");
+gotoxy(20,10);
+printf("LOADING........");
+printf("\n\n");
+gotoxy(22,11);
+for(loader=1;loader<20;loader++)
+{
+Sleep(100);printf("%c",219);}
+}*/
+//End of program
